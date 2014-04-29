@@ -1,0 +1,10 @@
+---
+- name: Setup staging server
+  hosts: staging
+  user: root
+  remote_user: vagrant
+  sudo: yes
+
+  roles:
+    #- common
+    - users

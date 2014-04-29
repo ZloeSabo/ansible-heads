@@ -1,0 +1,4 @@
+---
+- name: Setup user folders
+  user: name={{ item }} state=present groups=www-data
+  with_items: user_list
