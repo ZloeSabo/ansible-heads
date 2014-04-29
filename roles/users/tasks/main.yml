@@ -1,4 +1,8 @@
 ---
-- name: Setup user folders
+- name: Setup user accounts
   user: name={{ item }} state=present groups=www-data
+  with_items: user_list
+
+- name: Create project folders
+  file: path=/home/{{ item }}/www state=directory
   with_items: user_list

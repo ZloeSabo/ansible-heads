@@ -1,0 +1,88 @@
+server {
+    listen 443 ssl;
+    listen 80;
+
+    server_name  {{ project_host }};
+    root         /var/www/{{ project_host }}/;
+
+    ssl on;
+    ssl_certificate /etc/nginx/ssl/{{ project_host }}.csr;
+    ssl_certificate_key /etc/nginx/ssl/{{ project_host }}.key;
+
+    error_log /var/log/nginx/{{ project_host }}.error.log;
+    access_log /var/log/nginx/{{ project_host }}.access.log;
+
+    {% for project in projects.symfony %}
+
+    #### {{ project.name }} STAGING ###
+    location ~ ^/{{ project.name }} {
+        alias /var/www/{{ project_host }}/{{ project.name }}/current/web;
+        index index.php;
+
+        if (-f $request_filename) {
+             break;
+        }
+
+        rewrite ^(.*)$ /{{ project.name }}/current/web/app.php last;
+    }
+
+    location ~ ^/{{ project.name }}/(.+)\.php(/|$) {
+        set $script $uri;
+
+        if ($uri ~ "/{{ project.name }}/(.+\.php)(/|$)") {
+            set $script $1;
+        }
+
+        fastcgi_pass                    unix:/var/run/php5-fpm.sock;
+        include                         fastcgi_params;
+        fastcgi_split_path_info         ^(.+\.php)(/.*)$;
+        fastcgi_param  SCRIPT_FILENAME  $document_root/{{ project.name }}/current/web/$script;
+        fastcgi_index index.php;
+
+        fastcgi_buffer_size 128k;
+        fastcgi_buffers 4 256k;
+        fastcgi_busy_buffers_size 256k;
+    }
+    ### {{ project.name }} STAGING ###
+
+    {% for user in user_list %}
+
+    ### {{ project.name }} {{ user }} ###
+    location ^/{{ user }}/{{ project.name }} {
+        alias /home/{{ user }}/www/{{ user }}.{{ project.name }}.prestoheads.com/web;
+        index app_dev.php;
+
+        if (-f $request_filename) {
+             break;
+        }
+
+        rewrite ^(.*)$ /{{ user }}/{{ project.name }}/app_dev.php last;
+    }
+    location ~ ^/{{ user }}/{{ project.name }}/(.+)\.php(/|$) {
+        set $script $uri;
+
+        if ($uri ~ "/{{ user }}/{{ project.name }}/(.+\.php)(/|$)") {
+            set $script $1;
+        }
+
+        fastcgi_pass                    unix:/var/run/php5-fpm.sock;
+        include                         fastcgi_params;
+        fastcgi_split_path_info         ^(.+\.php)(/.*)$;
+        fastcgi_param  SCRIPT_FILENAME  /home/{{ user }}/www/{{ user }}.{{ project.name }}.prestoheads.com/web/$script;
+        fastcgi_index                   app_dev.php;
+
+        fastcgi_buffer_size             128k;
+        fastcgi_buffers                 4 256k;
+        fastcgi_busy_buffers_size       256k;
+    }
+    ### {{ project.name }} {{ user }} ###
+
+    {% endfor %}
+
+    {% endfor %}
+
+
+    location ~ /\.ht {
+        deny all;
+    }
+}

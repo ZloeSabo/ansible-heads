@@ -8,5 +8,9 @@ Vagrant.configure("2") do |config|
   config.ssh.forward_agent = true
   config.vm.synced_folder ".", "/var/www/symfony", :nfs => (RUBY_PLATFORM =~ /linux/ || RUBY_PLATFORM =~ /darwin/)
 
-end
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "site.yml"
+    ansible.inventory_path = "./hosts"
+  end
 
+end

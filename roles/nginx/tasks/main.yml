@@ -1,0 +1,12 @@
+---
+  - name: Add nginx repository key
+    apt_key: id=C300EE8C url="http://keyserver.ubuntu.com:11371/pks/lookup?op=get&search=0x00A6F0A3C300EE8C" state=present
+
+  - name: Add nginx repository
+    apt_repository: repo='deb http://ppa.launchpad.net/nginx/stable/ubuntu lucid main' update_cache=yes state=present
+
+  - name: Install latest nginx
+    apt: pkg=nginx state=latest
+
+  - name: Copy subfolder project config
+    template: src=symfony-subfolder.conf.j2 dest=/etc/nginx/sites-available/{{ project_host }}

@@ -1,7 +1,14 @@
 ---
-user_list: 
-    - es
-    - ss
-    - vr
-    - shnyt
-    - smilesrg
+user_list:
+  - es
+  - ss
+  - vr
+  - shnyt
+  - smilesrg
+
+project_host: project.prestoheads.com
+
+projects:
+  symfony:
+    - { name: sobranie, repo: "git@github.com:stansmet/sobranie.git" }
+  silex: ~
