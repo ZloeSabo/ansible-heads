@@ -1,0 +1,53 @@
+---
+  - name: Add php-fpm repository key
+    apt_key: id=E5267A6C url="http://keyserver.ubuntu.com:11371/pks/lookup?op=get&search=0x4F4EA0AAE5267A6C" state=present
+
+  - name: Add php-fpm repository
+    apt_repository: repo='deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main ' update_cache=yes state=present
+
+  - name: Install latest php-fpm
+    apt: pkg=php5-fpm state=latest
+
+  - name: Install latest php-cli
+    apt: pkg=php5-cli state=latest
+
+  - name: Install php extensions
+    apt: pkg={{ item }} state=latest
+    with_items:
+      - php5-curl
+      - php5-json
+      - php5-imagick
+      - php5-intl
+      - php5-mysql
+      - php5-gd
+      - php5-dev
+    notify:
+      - php-fpm-restart
+
+  - name: Install composer
+    shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer creates=/usr/local/bin/composer
+
+  - name: Test for previous mongo extension install
+    shell:  pecl list | grep -i 'mongo'
+    register: mongo_package_exists
+    ignore_errors: yes
+
+  - name: Install mongo extension
+    shell: no | pecl install -s mongo
+    when: mongo_package_exists|failed
+
+  - name: Enable mongo extension
+    template: src=mongo.ini.j2 dest=/etc/php5/{{ item }}/conf.d/20-mongo.ini
+    when: mongo_package_exists|failed
+    with_items:
+      - fpm
+      - cli
+    notify:
+      - php-fpm-restart
+
+
+  - name: Copy cli php.ini
+    template: src=php-cli.ini.j2 dest=/etc/php5/cli/php.ini
+
+  - name: Copy php-fpm.conf
+    template: src=php-fpm.conf.j2 dest=/etc/php5/fpm/php-fpm.conf

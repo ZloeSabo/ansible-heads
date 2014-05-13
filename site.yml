@@ -6,6 +6,9 @@
   sudo: yes
 
   roles:
-    #- common
+    - common
     - users
     - nginx
+    - php-fpm
+    - mongodb
+    - mysql
