@@ -1,7 +1,8 @@
 ---
   - name: Install common stuff
-    apt: pkg={{ item }} state=latest
+    apt: pkg={{ item }} state=latest update_cache=yes
     with_items:
       - git
       - curl
       - vim
+      - python-pycurl

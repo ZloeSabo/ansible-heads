@@ -21,6 +21,7 @@
       - php5-mysql
       - php5-gd
       - php5-dev
+      - php-pear
     notify:
       - php-fpm-restart
 
@@ -33,7 +34,7 @@
     ignore_errors: yes
 
   - name: Install mongo extension
-    shell: no | pecl install -s mongo
+    shell: echo "\n" | pecl install -s mongo
     when: mongo_package_exists|failed
 
   - name: Enable mongo extension
