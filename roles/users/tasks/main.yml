@@ -9,6 +9,11 @@
     - user_list
     - all_project_list
 
+- name: Create log folders
+  file: path=/home/{{ item }}/log state=directory group={{ item }} owner={{ item }} recurse=yes
+  with_items: user_list
+
+
 - name: Give user rwx to his www dir
   file: path=/home/{{ item }}/www state=directory group={{ item }} owner={{ item }} recurse=yes
   with_items: user_list

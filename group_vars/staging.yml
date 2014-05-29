@@ -6,13 +6,17 @@ user_list:
   - shnyt
   - smilesrg
 
-project_host: project.prestoheads.com
+#subfolder_project_host: project.prestoheads.com
+#subdomain_project_host: prestoheads.com
+
+subfolder_project_host: project.octodev.io
+subdomain_project_host: octodev.io
 
 projects:
   sf2subfolder:
     - { name: test, repo: "git@github.com:stansmet/sobranie.git" }
-  host:
+  sf2host:
     - { name: sobranie, repo: "git@github.com:stansmet/sobranie.git" }
   silex: []
 
-all_project_list: "{{ projects.sf2subfolder + projects.host + projects.silex }}"
+all_project_list: "{{ projects.sf2subfolder + projects.sf2host + projects.silex }}"

@@ -9,9 +9,22 @@
     apt: pkg=nginx state=latest
 
   - name: Copy subfolder project config
-    template: src=symfony-subfolder.conf.j2 dest=/etc/nginx/sites-available/{{ project_host }}
+    template: src=symfony-subfolder.conf.j2 dest=/etc/nginx/sites-available/{{ subfolder_project_host }}
+
+  - name: Copy subdomain project config
+    template: src=symfony-subdomain.conf.j2 dest=/etc/nginx/sites-available/{{ item.name }}.{{ subdomain_project_host }}
+    with_items: projects.sf2host
+
+  - name: Add subfolder projects to sites-enabled
+    file: src=/etc/nginx/sites-available/{{ subfolder_project_host }} dest=/etc/nginx/sites-enabled/{{ subfolder_project_host }} state=link
+    notify:
+      - nginx-reload
+
+  - name: Add subdomain projects to sites-enabled
+    file: src=/etc/nginx/sites-available/{{ item.name }}.{{ subdomain_project_host }} dest=/etc/nginx/sites-enabled/{{ item.name }}.{{ subdomain_project_host }} state=link
+    with_items: projects.sf2host
     notify:
       - nginx-reload
 
   - name: Make sure nginx service started
-    apt: pkg=nginx state=latest
+    service: name=nginx state=started

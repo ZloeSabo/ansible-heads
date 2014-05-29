@@ -1,0 +1,63 @@
+server {
+    server_name {{ item.name }}.{{ subdomain_project_host }};
+
+    root /var/www/{{ item.name }}.{{ subdomain_project_host }}/www/current/web;
+
+    error_log /var/log/nginx/{{ item.name }}.{{ subdomain_project_host }}.error.log;
+    access_log /var/log/nginx/{{ item.name }}.{{ subdomain_project_host }}.access.log;
+
+    rewrite ^/app\.php/?(.*)$ /$1 permanent;
+    location / {
+        index app.php;
+        try_files $uri @rewriteapp;
+    }
+
+    location @rewriteapp {
+        rewrite ^(.*)$ /app.php/$1 last;
+    }
+
+    location ~ ^/(app|app_dev|config)\.php(/|$) {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+
+{% for user in user_list %}
+server {
+    server_name {{ user }}.{{ item.name }}.{{ subdomain_project_host }};
+
+    root /home/{{ user }}/www/{{ item.name }}/web;
+
+    error_log /home/{{ user }}/log/{{ user }}.{{ item.name }}.{{ subdomain_project_host }}.error.log;
+    access_log /home/{{ user }}/log/{{ user }}.{{ item.name }}.{{ subdomain_project_host }}.access.log;
+
+    rewrite ^/app\.php/?(.*)$ /$1 permanent;
+    location / {
+        index app.php;
+        try_files $uri @rewriteapp;
+    }
+
+    location @rewriteapp {
+        rewrite ^(.*)$ /app.php/$1 last;
+    }
+
+    location ~ ^/(app|app_dev|config)\.php(/|$) {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+{% endfor %}

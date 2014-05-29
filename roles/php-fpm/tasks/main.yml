@@ -31,6 +31,7 @@
   - name: Test for previous mongo extension install
     shell:  pecl list | grep -i 'mongo'
     register: mongo_package_exists
+    changed_when: mongo_package_exists|failed
     ignore_errors: yes
 
   - name: Install mongo extension
@@ -58,6 +59,6 @@
       - php-fpm-restart
 
   - name: Copy fpm pool config
-    template: src=www.conf.j2 dest=/etc/php5/fpm/pool.d
+    template: src=www.conf.j2 dest=/etc/php5/fpm/pool.d/www.conf force=yes
     notify:
       - php-fpm-restart
