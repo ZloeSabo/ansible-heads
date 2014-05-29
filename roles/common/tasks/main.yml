@@ -6,3 +6,5 @@
       - curl
       - vim
       - python-pycurl
+      - python-mysqldb
+      - acl

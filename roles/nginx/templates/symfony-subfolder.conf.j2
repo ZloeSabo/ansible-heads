@@ -12,37 +12,32 @@ server {
     error_log /var/log/nginx/{{ project_host }}.error.log;
     access_log /var/log/nginx/{{ project_host }}.access.log;
 
-    {% for project in projects.symfony %}
+    {% for project in projects.sf2subfolder %}
 
     #### {{ project.name }} STAGING ###
-    location ~ ^/{{ project.name }} {
+    location /{{ project.name }} {
         alias /var/www/{{ project_host }}/{{ project.name }}/current/web;
-        index index.php;
-
-        if (-f $request_filename) {
-             break;
-        }
-
-        rewrite ^(.*)$ /{{ project.name }}/current/web/app.php last;
+        index app.php;
+        try_files $uri @rewrite{{ project.name }};
     }
 
-    location ~ ^/{{ project.name }}/(.+)\.php(/|$) {
-        set $script $uri;
-
-        if ($uri ~ "/{{ project.name }}/(.+\.php)(/|$)") {
-            set $script $1;
-        }
-
-        fastcgi_pass                    unix:/var/run/php5-fpm.sock;
+    location ~ ^/{{ project.name }}/((app|app_dev|config)\.php)(/|$) {
+        fastcgi_pass                    127.0.0.1:9000;
         include                         fastcgi_params;
         fastcgi_split_path_info         ^(.+\.php)(/.*)$;
-        fastcgi_param  SCRIPT_FILENAME  $document_root/{{ project.name }}/current/web/$script;
-        fastcgi_index index.php;
+        fastcgi_param  SCRIPT_FILENAME  $document_root/{{ project.name }}/current/web/$1;
+        fastcgi_index  app.php;
 
         fastcgi_buffer_size 128k;
         fastcgi_buffers 4 256k;
         fastcgi_busy_buffers_size 256k;
     }
+
+    location @rewrite{{ project.name }} {
+        rewrite ^(.*)$ /{{ project.name }}/app.php/$1 last;
+    }
+
+
     ### {{ project.name }} STAGING ###
 
     {% for user in user_list %}

@@ -9,6 +9,10 @@ user_list:
 project_host: project.prestoheads.com
 
 projects:
-  symfony:
+  sf2subfolder:
+    - { name: test, repo: "git@github.com:stansmet/sobranie.git" }
+  host:
     - { name: sobranie, repo: "git@github.com:stansmet/sobranie.git" }
-  silex: ~
+  silex: []
+
+all_project_list: "{{ projects.sf2subfolder + projects.host + projects.silex }}"

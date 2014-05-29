@@ -10,3 +10,8 @@
 
   - name: Copy subfolder project config
     template: src=symfony-subfolder.conf.j2 dest=/etc/nginx/sites-available/{{ project_host }}
+    notify:
+      - nginx-reload
+
+  - name: Make sure nginx service started
+    apt: pkg=nginx state=latest

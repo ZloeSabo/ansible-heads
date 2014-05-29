@@ -49,6 +49,15 @@
 
   - name: Copy cli php.ini
     template: src=php-cli.ini.j2 dest=/etc/php5/cli/php.ini
+    notify:
+      - php-fpm-restart
 
   - name: Copy php-fpm.conf
     template: src=php-fpm.conf.j2 dest=/etc/php5/fpm/php-fpm.conf
+    notify:
+      - php-fpm-restart
+
+  - name: Copy fpm pool config
+    template: src=www.conf.j2 dest=/etc/php5/fpm/pool.d
+    notify:
+      - php-fpm-restart
